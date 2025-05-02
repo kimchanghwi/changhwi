@@ -1,101 +1,139 @@
 using UnityEngine;
 using System.Collections;
+using DG.Tweening;
 
 public class PlayerCharacter : MonoBehaviour
 {
     private Rigidbody2D rb;
     private Animator animator;
-    private SpriteRenderer spriteRenderer;          // ½ºÇÁ¶óÀÌÆ® ÄÄÆ÷³ÍÆ® ÂüÁ¶
+    private SpriteRenderer spriteRenderer;          // ìŠ¤í”„ë¼ì´íŠ¸ ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
 
-    [Header("ÀÌµ¿/Á¡ÇÁ ¼³Á¤")]
-    public float startSpeed = 5f;                   // ½ÃÀÛ ¼Óµµ
-    public float accelerationRate = 2f;             // ÃÊ´ç ¼Óµµ Áõ°¡·®
-    public float maxSpeed = 7f;                     // ÃÖ´ë ¼Óµµ
-    private float currentSpeed;                     // ÇöÀç ÀÌµ¿ ¼Óµµ
-    public float jumpForce = 10f;                   // Á¡ÇÁ ½Ã À§·Î °¡ÇØÁú Èû
-    private bool isGrounded = false;                // ¶¥¿¡ ´ê¾Ò´ÂÁö Ã¼Å©
+    [Header("ì´ë™/ì í”„ ì„¤ì •")]
+    public float startSpeed = 5f;                   // ì‹œì‘ ì†ë„
+    public float accelerationRate = 2f;             // ì´ˆë‹¹ ì†ë„ ì¦ê°€ëŸ‰
+    public float maxSpeed = 7f;                     // ìµœëŒ€ ì†ë„
+    public float DashSpeed = 30f;                   // ëŒ€ì‰¬ ì†ë„
 
-    [Header("Ãæµ¹ ¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤")]
-    public string victoryAnimationName = "victory"; // ÇÃ·¹ÀÌ¾î ½Â¸® ¾Ö´Ï¸ŞÀÌ¼Ç
+    [SerializeField]
+    private float currentSpeed;                     // í˜„ì¬ ì´ë™ ì†ë„
+    public float jumpForce = 10f;                   // ì í”„ ì‹œ ìœ„ë¡œ ê°€í•´ì§ˆ í˜
+    private bool isGrounded = false;                // ë•…ì— ë‹¿ì•˜ëŠ”ì§€ ì²´í¬
 
-    [Header("´õºí Á¡ÇÁ ¼³Á¤")]
-    public int maxJumpCount = 2;                    // ÃÖ´ë Á¡ÇÁ È½¼ö (2´Ü Á¡ÇÁ)
-    private int jumpCount = 0;                      // ÇöÀç Á¡ÇÁ È½¼ö
+    [Header("ì¶©ëŒ ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •")]
+    public string victoryAnimationName = "victory"; // í”Œë ˆì´ì–´ ìŠ¹ë¦¬ ì• ë‹ˆë©”ì´ì…˜
 
-    [Header("Ãæµ¹ ¹«È¿È­ ½Ã°£ ¼³Á¤")]
-    public float ignoreDuration = 2f;               // Ãæµ¹ ¹«È¿È­ ½Ã°£(ÃÊ)
+    [Header("ë”ë¸” ì í”„ ì„¤ì •")]
+    public int maxJumpCount = 2;                    // ìµœëŒ€ ì í”„ íšŸìˆ˜ (2ë‹¨ ì í”„)
+    private int jumpCount = 0;                      // í˜„ì¬ ì í”„ íšŸìˆ˜
 
-    // AI¿ÍÀÇ Ãæµ¹ ¹ß»ı ½Ã Á¤Áö
+    [Header("ì¶©ëŒ ë¬´íš¨í™” ì‹œê°„ ì„¤ì •")]
+    public float ignoreDuration = 2f;               // ì¶©ëŒ ë¬´íš¨í™” ì‹œê°„(ì´ˆ)
+
+    public GameObject JumpEffectPrefab; // ì í”„ ì´í™íŠ¸ í”„ë¦¬íŒ¹
+    public GameObject DashEffectPrefab; // ëŒ€ì‰¬ ì´í™íŠ¸ í”„ë¦¬íŒ¹
+
+    // AIì™€ì˜ ì¶©ëŒ ë°œìƒ ì‹œ ì •ì§€
     private bool aiCollisionOccurred = false;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer ÃÊ±âÈ­
+        spriteRenderer = GetComponent<SpriteRenderer>(); // SpriteRenderer ì´ˆê¸°í™”
         currentSpeed = startSpeed;
     }
 
     void Update()
     {
-        // AI¿ÍÀÇ Ãæµ¹ÀÌ ¹ß»ıÇÏ¸é ¿µ±¸ Á¤Áö
+        // AIì™€ì˜ ì¶©ëŒì´ ë°œìƒí•˜ë©´ ì˜êµ¬ ì •ì§€
         if (aiCollisionOccurred)
         {
             rb.velocity = Vector2.zero;
             return;
         }
 
-        // °¡¼Óµµ Àû¿ë
-        currentSpeed += accelerationRate * Time.deltaTime;
-        if (currentSpeed > maxSpeed)
-            currentSpeed = maxSpeed;
+        // currentSpeed += accelerationRate * Time.deltaTime;
+        // if (currentSpeed > maxSpeed)
+        // {
+        //     //ì²œì²œíˆ ì ìš©
+        currentSpeed = Mathf.Lerp(currentSpeed, maxSpeed, 0.1f);
+        //     // currentSpeed = maxSpeed;
+        // }
 
         rb.velocity = new Vector2(currentSpeed, rb.velocity.y);
 
-        // Á¡ÇÁ 
+        // ì í”„ 
         if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumpCount)
         {
+            Destroy(Instantiate(JumpEffectPrefab, transform.position, Quaternion.Euler(80, 0, 0)), 2f); // ì í”„ ì´í™íŠ¸ í”„ë¦¬íŒ¹ ì¸ìŠ¤í„´ìŠ¤í™”)
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             jumpCount++;
             isGrounded = false;
         }
 
-        // Á¡ÇÁ ÁßÀÏ ¶§ ¾Ö´Ï¸ŞÀÌ¼Ç Á¤Áö, ÂøÁö ½Ã Àç°³
+        // ì•„ë˜ ë°©í–¥í‚¤ ëˆ„ë¥´ë©´ ìŠ¬ë¼ì´ë”©
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            transform.DOKill();
+            transform.DOScaleY(0.5f, 0.15f);
+
+            // slideCoroutine = StartCoroutine(SlideCor());
+        }
+        // ë•Œë©´ ìŠ¬ë¼ì´ë”© í•´ì œì œ
+        else if (Input.GetKeyUp(KeyCode.DownArrow))
+        {
+            transform.DOKill();
+            transform.DOScaleY(1, 0.15f);
+        }
+
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            GameObject dashEffect = Instantiate(DashEffectPrefab, transform.position, Quaternion.Euler(0, -90, 90)); // ëŒ€ì‰¬ ì´í™íŠ¸ í”„ë¦¬íŒ¹ ì¸ìŠ¤í„´ìŠ¤í™”
+            dashEffect.transform.localScale = Vector3.one * 3f;
+            Destroy(dashEffect, 2f); // ëŒ€ì‰¬ ì´í™íŠ¸ í”„ë¦¬íŒ¹ ì¸ìŠ¤í„´ìŠ¤í™”
+
+            currentSpeed = DashSpeed;
+            rb.velocity = new Vector2(currentSpeed, 0);
+        }
+
+        // ì í”„ ì¤‘ì¼ ë•Œ ì• ë‹ˆë©”ì´ì…˜ ì •ì§€, ì°©ì§€ ì‹œ ì¬ê°œ
         animator.speed = isGrounded ? 1f : 0f;
     }
 
+
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // ¶¥°ú Ãæµ¹ÇÏ¸é Á¡ÇÁ È½¼ö ÃÊ±âÈ­
+        // ë•…ê³¼ ì¶©ëŒí•˜ë©´ ì í”„ íšŸìˆ˜ ì´ˆê¸°í™”
         if (collision.gameObject.CompareTag("ground"))
         {
             isGrounded = true;
             jumpCount = 0;
         }
 
-        // ÇÃ·¹ÀÌ¾î°¡ AI¿Í Ãæµ¹ÇÏ¸é ¿µ±¸ Á¤Áö Ã³¸®
+        // í”Œë ˆì´ì–´ê°€ AIì™€ ì¶©ëŒí•˜ë©´ ì˜êµ¬ ì •ì§€ ì²˜ë¦¬
         if (collision.gameObject.CompareTag("ai") && !aiCollisionOccurred)
         {
             aiCollisionOccurred = true;
 
-            // ½Â¸® ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı ¹× ¿µ±¸ Á¤Áö
+            // ìŠ¹ë¦¬ ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ ë° ì˜êµ¬ ì •ì§€
             animator.Play(victoryAnimationName);
             currentSpeed = 0f;
             rb.velocity = Vector2.zero;
         }
 
-        // ÇÃ·¹ÀÌ¾î°¡ Àå¾Ö¹°°ú Ãæµ¹ÇÏ¸é ÀÏ½ÃÀûÀ¸·Î Á¤Áö
+        // í”Œë ˆì´ì–´ê°€ ì¥ì• ë¬¼ê³¼ ì¶©ëŒí•˜ë©´ ì¼ì‹œì ìœ¼ë¡œ ì •ì§€
         if (collision.gameObject.CompareTag("Obstacles"))
         {
-            // ÀÏ½Ã Á¤Áö ÄÚ·çÆ¾ ½ÇÇà
+            // ì¼ì‹œ ì •ì§€ ì½”ë£¨í‹´ ì‹¤í–‰
             StartCoroutine(TemporaryStop());
 
-            // Ãæµ¹ ÆÇÁ¤À» ÀÏÁ¤ ½Ã°£ ¹«È¿È­
+            // ì¶©ëŒ íŒì •ì„ ì¼ì • ì‹œê°„ ë¬´íš¨í™”
             Collider2D playerCollider = GetComponent<Collider2D>();
             Collider2D obstacleCollider = collision.collider;
             StartCoroutine(DisableCollisionForSeconds(playerCollider, obstacleCollider, ignoreDuration));
 
-            // ¹«È¿È­ ½Ã°£ µ¿¾È ½ºÇÁ¶óÀÌÆ® ±ôºıÀÓ È¿°ú Àû¿ë
+            // ë¬´íš¨í™” ì‹œê°„ ë™ì•ˆ ìŠ¤í”„ë¼ì´íŠ¸ ê¹œë¹¡ì„ íš¨ê³¼ ì ìš©
             StartCoroutine(BlinkSprite(ignoreDuration, 0.1f));
         }
     }
@@ -106,21 +144,21 @@ public class PlayerCharacter : MonoBehaviour
             isGrounded = false;
     }
 
-    // Àå¾Ö¹° Ãæµ¹ ½Ã ÀÏ½Ã Á¤Áö ÈÄ È¸º¹ÇÏ´Â ÄÚ·çÆ¾
+    // ì¥ì• ë¬¼ ì¶©ëŒ ì‹œ ì¼ì‹œ ì •ì§€ í›„ íšŒë³µí•˜ëŠ” ì½”ë£¨í‹´
     IEnumerator TemporaryStop()
     {
-        // ÀúÀåµÈ ¼Óµµ¸¦ º¸Á¸ÇÒ ÇÊ¿ä°¡ ÀÖ´Ù¸é ¿©±â¼­ ÀÓ½Ã ÀúÀå
+        // ì €ì¥ëœ ì†ë„ë¥¼ ë³´ì¡´í•  í•„ìš”ê°€ ìˆë‹¤ë©´ ì—¬ê¸°ì„œ ì„ì‹œ ì €ì¥
         float savedSpeed = currentSpeed;
         currentSpeed = 2f;
         rb.velocity = Vector2.zero;
 
         yield return new WaitForSeconds(ignoreDuration);
 
-        // ÀÏ½Ã Á¤Áö ÈÄ ´Ù½Ã ±âº» ¼Óµµ(¶Ç´Â ¿øÇÏ´Â ¼Óµµ)·Î È¸º¹
+        // ì¼ì‹œ ì •ì§€ í›„ ë‹¤ì‹œ ê¸°ë³¸ ì†ë„(ë˜ëŠ” ì›í•˜ëŠ” ì†ë„)ë¡œ íšŒë³µ
         currentSpeed = startSpeed;
     }
 
-    // ÇÃ·¹ÀÌ¾î¿Í Àå¾Ö¹° °£ Ãæµ¹ ÆÇÁ¤À» ÀÏÁ¤ ½Ã°£ ¹«È¿È­ÇÏ´Â ÄÚ·çÆ¾
+    // í”Œë ˆì´ì–´ì™€ ì¥ì• ë¬¼ ê°„ ì¶©ëŒ íŒì •ì„ ì¼ì • ì‹œê°„ ë¬´íš¨í™”í•˜ëŠ” ì½”ë£¨í‹´
     IEnumerator DisableCollisionForSeconds(Collider2D col1, Collider2D col2, float duration)
     {
         Physics2D.IgnoreCollision(col1, col2, true);
@@ -128,7 +166,7 @@ public class PlayerCharacter : MonoBehaviour
         Physics2D.IgnoreCollision(col1, col2, false);
     }
 
-    // ¹«È¿È­ ½Ã°£ µ¿¾È ½ºÇÁ¶óÀÌÆ® ±ôºıÀÓ È¿°ú¸¦ ÁÖ´Â ÄÚ·çÆ¾
+    // ë¬´íš¨í™” ì‹œê°„ ë™ì•ˆ ìŠ¤í”„ë¼ì´íŠ¸ ê¹œë¹¡ì„ íš¨ê³¼ë¥¼ ì£¼ëŠ” ì½”ë£¨í‹´
     IEnumerator BlinkSprite(float duration, float blinkInterval)
     {
         float elapsed = 0f;
@@ -140,7 +178,7 @@ public class PlayerCharacter : MonoBehaviour
             yield return new WaitForSeconds(blinkInterval);
             elapsed += blinkInterval * 2;
         }
-        // ±ôºıÀÓ Á¾·á ÈÄ ½ºÇÁ¶óÀÌÆ®°¡ È°¼º »óÅÂÀÎÁö È®ÀÎ
+        // ê¹œë¹¡ì„ ì¢…ë£Œ í›„ ìŠ¤í”„ë¼ì´íŠ¸ê°€ í™œì„± ìƒíƒœì¸ì§€ í™•ì¸
         spriteRenderer.enabled = true;
     }
 }

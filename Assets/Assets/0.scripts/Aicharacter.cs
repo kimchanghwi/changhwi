@@ -5,13 +5,13 @@ public class AICharacter : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
 
-    [Header("ÀÌµ¿ ¼³Á¤")]
-    public float speed = 5f;                             // AIÀÇ ÀÌµ¿¼Óµµ
+    [Header("ì´ë™ ì„¤ì •")]
+    public float speed = 5f;                             // AIì˜ ì´ë™ì†ë„
 
-    [Header("Ãæµ¹ ¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤")]
-    public string loseAnimationName = "lose";            // AI ÆĞ¹è ¾Ö´Ï¸ŞÀÌ¼Ç
+    [Header("ì¶©ëŒ ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •")]
+    public string loseAnimationName = "lose";            // AI íŒ¨ë°° ì• ë‹ˆë©”ì´ì…˜
 
-    // Ãæµ¹ ¹ß»ı ½Ã ÀÌµ¿ Á¤Áö¸¦ À§ÇÑ ÇÃ·¡±×
+    // ì¶©ëŒ ë°œìƒ ì‹œ ì´ë™ ì •ì§€ë¥¼ ìœ„í•œ í”Œë˜ê·¸
     private bool collisionOccurred = false;
 
     void Start()
@@ -24,7 +24,7 @@ public class AICharacter : MonoBehaviour
     {
         rb.velocity = new Vector2(speed,rb.velocity.y);
 
-        // Ãæµ¹ ¹ß»ı ÈÄ¿¡´Â ÀÌµ¿ ¾÷µ¥ÀÌÆ®¸¦ Áß´Ü
+        // ì¶©ëŒ ë°œìƒ í›„ì—ëŠ” ì´ë™ ì—…ë°ì´íŠ¸ë¥¼ ì¤‘ë‹¨
         if (collisionOccurred)
         {
             rb.velocity = Vector2.zero;
@@ -34,7 +34,7 @@ public class AICharacter : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // ÇÃ·¹ÀÌ¾î¿Í Ãæµ¹ ½Ã AI ÆĞ¹è Ã³¸®
+        // í”Œë ˆì´ì–´ì™€ ì¶©ëŒ ì‹œ AI íŒ¨ë°° ì²˜ë¦¬
         if (collision.gameObject.CompareTag("player") && !collisionOccurred)
         {
             collisionOccurred = true;
@@ -42,7 +42,7 @@ public class AICharacter : MonoBehaviour
             animator.Play(loseAnimationName);
         }
 
-        // Àå¾Ö¹°°úÀÇ Ãæµ¹ Ã³¸® (ÇÊ¿ä ½Ã)
+        // ì¥ì• ë¬¼ê³¼ì˜ ì¶©ëŒ ì²˜ë¦¬ (í•„ìš” ì‹œ)
         if (collision.gameObject.CompareTag("Obstacles"))
         {
             collisionOccurred = true;

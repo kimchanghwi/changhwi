@@ -3,33 +3,45 @@ using System.Collections.Generic;
 
 public class MapManager : MonoBehaviour
 {
-    [Header("¸Ê ±¸¿ª ¼³Á¤")]
+    [Header("ë§µ êµ¬ì—­ ì„¤ì •")]
     public List<GameObject> mapSegments;
 
-    [Tooltip("°¢ ¸Ê ±¸¿ªÀÇ °¡·Î ±æÀÌ")]
+    [Tooltip("ê° ë§µ êµ¬ì—­ì˜ ê°€ë¡œ ê¸¸ì´")]
     public float segmentWidth = 50f;
 
-    [Header("ÇÃ·¹ÀÌ¾î/Ä«¸Ş¶ó ÂüÁ¶")]
+    [Header("í”Œë ˆì´ì–´/ì¹´ë©”ë¼ ì°¸ì¡°")]
     public Transform player;
 
     void Update()
     {
-        // °¢ ±¸¿ª¿¡ ´ëÇØ ÇÃ·¹ÀÌ¾îº¸´Ù ¿ŞÂÊ¿¡ ¿ÏÀüÈ÷ ¹ş¾î³µ´ÂÁö Ã¼Å©
+        // ê° êµ¬ì—­ì— ëŒ€í•´ í”Œë ˆì´ì–´ë³´ë‹¤ ì™¼ìª½ì— ì™„ì „íˆ ë²—ì–´ë‚¬ëŠ”ì§€ ì²´í¬
         foreach (GameObject segment in mapSegments)
         {
-            // ±¸¿ªÀÇ ¿À¸¥ÂÊ ³¡ x ÁÂÇ¥°¡ ÇÃ·¹ÀÌ¾îÀÇ xº¸´Ù ÀÛÀ¸¸é
+            // êµ¬ì—­ì˜ ì˜¤ë¥¸ìª½ ë x ì¢Œí‘œê°€ í”Œë ˆì´ì–´ì˜ xë³´ë‹¤ ì‘ìœ¼ë©´
             if (segment.transform.position.x + segmentWidth < player.position.x)
             {
-                // °¡Àå ¿À¸¥ÂÊ¿¡ ÀÖ´Â ±¸¿ªÀ» Ã£¾Æ¼­, ±× ¿À¸¥ÂÊ¿¡ ÀÌ ±¸¿ªÀ» Àç¹èÄ¡
+                // ê°€ì¥ ì˜¤ë¥¸ìª½ì— ìˆëŠ” êµ¬ì—­ì„ ì°¾ì•„ì„œ, ê·¸ ì˜¤ë¥¸ìª½ì— ì´ êµ¬ì—­ì„ ì¬ë°°ì¹˜
                 float newX = GetRightmostX();
                 Vector3 newPos = segment.transform.position;
                 newPos.x = newX;
                 segment.transform.position = newPos;
+
+
+                //ì•„ë˜ì— êº¼ì ¸ìˆëŠ” ëª¨ë“  ì˜¤ë¸Œì íŠ¸ í™œì„±í™”
+                foreach (Transform child in segment.transform)
+                {
+                    if (child.gameObject.activeSelf == false)
+                    {
+                        child.gameObject.SetActive(true);
+                    }
+                }
             }
+
+
         }
     }
 
-    // ¸®½ºÆ® ³»¿¡¼­ °¡Àå ¿À¸¥ÂÊ¿¡ ÀÖ´Â ±¸¿ªÀÇ ¿À¸¥ÂÊ ³¡ x ÁÂÇ¥¸¦ ¹İÈ¯
+    // ë¦¬ìŠ¤íŠ¸ ë‚´ì—ì„œ ê°€ì¥ ì˜¤ë¥¸ìª½ì— ìˆëŠ” êµ¬ì—­ì˜ ì˜¤ë¥¸ìª½ ë x ì¢Œí‘œë¥¼ ë°˜í™˜
     float GetRightmostX()
     {
         float maxX = float.MinValue;
@@ -40,7 +52,7 @@ public class MapManager : MonoBehaviour
                 maxX = segment.transform.position.x;
             }
         }
-        // ¿À¸¥ÂÊ ³¡ À§Ä¡´Â maxX + segmentWidth
+        // ì˜¤ë¥¸ìª½ ë ìœ„ì¹˜ëŠ” maxX + segmentWidth
         return maxX + segmentWidth;
     }
 }

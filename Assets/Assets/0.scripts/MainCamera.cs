@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public Transform player;              // ÇÃ·¹ÀÌ¾îÀÇ Transform
-    public float smoothSpeed = 0.125f;    // Ä«¸Ş¶ó µû¶ó°¡´Â ¼Óµµ
-    public Vector3 offset;                // Ä«¸Ş¶ó¿Í ÇÃ·¹ÀÌ¾î »çÀÌÀÇ °Å¸®(¿ÀÇÁ¼Â)
+    public Transform player;              // í”Œë ˆì´ì–´ì˜ Transform
+    public float smoothSpeed = 0.125f;    // ì¹´ë©”ë¼ ë”°ë¼ê°€ëŠ” ì†ë„
+    public Vector3 offset;                // ì¹´ë©”ë¼ì™€ í”Œë ˆì´ì–´ ì‚¬ì´ì˜ ê±°ë¦¬(ì˜¤í”„ì…‹)
 
     private Vector3 velocity = Vector3.zero;
 
@@ -12,10 +12,10 @@ public class CameraFollow : MonoBehaviour
     {
         if (player == null) return;
 
-        // ¸ñÇ¥ À§Ä¡: ÇÃ·¹ÀÌ¾î À§Ä¡ + ¿ÀÇÁ¼Â
+        // ëª©í‘œ ìœ„ì¹˜: í”Œë ˆì´ì–´ ìœ„ì¹˜ + ì˜¤í”„ì…‹
         Vector3 targetPosition = player.position + offset;
 
-        // Ä«¸Ş¶ó ÀÌµ¿ 
+        // ì¹´ë©”ë¼ ì´ë™ 
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothSpeed);
     }
 }

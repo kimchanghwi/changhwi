@@ -2,54 +2,54 @@ using UnityEngine;
 
 public class RedEyeGlow : MonoBehaviour
 {
-    [Header("ÇÊ¼ö ¿¬°á")]
-    public SpriteRenderer spriteRenderer; // Inspector¿¡¼­ ¿¬°á
-    public Transform player;              // ÇÃ·¹ÀÌ¾î
-    public Transform ai;                  // AI (°Å¸® °è»ê ´ë»ó)
+    [Header("í•„ìˆ˜ ì—°ê²°")]
+    public SpriteRenderer spriteRenderer; // Inspectorì—ì„œ ì—°ê²°
+    public Transform player;              // í”Œë ˆì´ì–´
+    public Transform ai;                  // AI (ê±°ë¦¬ ê³„ì‚° ëŒ€ìƒ)
 
-    // °ÔÀÓ ½ÃÀÛ ½Ã ÃøÁ¤ÇÑ ÇÃ·¹ÀÌ¾î-AI °£ ÃÊ±â °Å¸®
+    // ê²Œì„ ì‹œì‘ ì‹œ ì¸¡ì •í•œ í”Œë ˆì´ì–´-AI ê°„ ì´ˆê¸° ê±°ë¦¬
     private float initialDistance;
 
     void Start()
     {
         if (spriteRenderer == null)
         {
-            Debug.LogError("[RedEyeGlow] SpriteRenderer°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[RedEyeGlow] SpriteRendererê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             enabled = false;
             return;
         }
 
         if (player == null || ai == null)
         {
-            Debug.LogError("[RedEyeGlow] Player È¤Àº AI°¡ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[RedEyeGlow] Player í˜¹ì€ AIê°€ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             enabled = false;
             return;
         }
 
-        // °ÔÀÓ ½ÃÀÛ ½Ã ÇÃ·¹ÀÌ¾î¿Í AIÀÇ 2D °Å¸® ÃøÁ¤
+        // ê²Œì„ ì‹œì‘ ì‹œ í”Œë ˆì´ì–´ì™€ AIì˜ 2D ê±°ë¦¬ ì¸¡ì •
         initialDistance = Vector2.Distance(player.position, ai.position);
 
-        // ÃÊ±â »óÅÂ: ÃÖ´ë °Å¸®¿¡¼­ ¾ËÆÄ°ª = 0 (¿ÏÀü Åõ¸í)
+        // ì´ˆê¸° ìƒíƒœ: ìµœëŒ€ ê±°ë¦¬ì—ì„œ ì•ŒíŒŒê°’ = 0 (ì™„ì „ íˆ¬ëª…)
         SetAlpha(0f);
     }
 
     void Update()
     {
-        // ÇÃ·¹ÀÌ¾î È¤Àº AI°¡ »èÁ¦µÇ¾ú´ÂÁö ÀçÈ®ÀÎ
+        // í”Œë ˆì´ì–´ í˜¹ì€ AIê°€ ì‚­ì œë˜ì—ˆëŠ”ì§€ ì¬í™•ì¸
         if (player == null || ai == null) return;
 
-        // ÇöÀç °Å¸® ÃøÁ¤
+        // í˜„ì¬ ê±°ë¦¬ ì¸¡ì •
         float currentDistance = Vector2.Distance(player.position, ai.position);
 
-        // ¾ËÆÄ°ª °è»ê
-        //    - (ÃÊ±â °Å¸® - ÇöÀç °Å¸®) / ÃÊ±â °Å¸®
-        //    - °¡±î¿öÁú¼ö·Ï °ªÀÌ Ä¿Á®¼­ ºÒÅõ¸íÇØÁü
+        // ì•ŒíŒŒê°’ ê³„ì‚°
+        //    - (ì´ˆê¸° ê±°ë¦¬ - í˜„ì¬ ê±°ë¦¬) / ì´ˆê¸° ê±°ë¦¬
+        //    - ê°€ê¹Œì›Œì§ˆìˆ˜ë¡ ê°’ì´ ì»¤ì ¸ì„œ ë¶ˆíˆ¬ëª…í•´ì§
         float alpha = (initialDistance - currentDistance) / initialDistance;
 
-        // 0~1 ¹üÀ§·Î Á¦ÇÑ
+        // 0~1 ë²”ìœ„ë¡œ ì œí•œ
         alpha = Mathf.Clamp01(alpha);
 
-        // ¾ËÆÄ°ª Àû¿ë
+        // ì•ŒíŒŒê°’ ì ìš©
         SetAlpha(alpha);
 
         Debug.Log($"[RedEyeGlow] Distance: {currentDistance:F3}, Alpha: {alpha:F3}");
